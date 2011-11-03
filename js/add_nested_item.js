@@ -2,7 +2,7 @@
  * User: danielcarter
  * Date: 10/12/11
  * Time: 3:46 PM
- * This object manages Adding and Building nested items.
+ * This object manages Adding and Building nested items in a form.
  * TODO:: Manage the removal of items?
  * NOTE:: I'm not sure if this object should also handle the removal of nested items.
  *        I think the nested Item should handle it's own removal. However if I make this
@@ -14,7 +14,7 @@
 
 /**
  * @param ele DOMElement
- * @param $h  -- { nest: DOMElement, nestedClass: string, template: string }
+ * @param $h  -- { nest: DOMElement, eggClass: string, template: string }
  */
 function AddNestedItem(ele, $h) {
     var me = this,
@@ -25,37 +25,39 @@ function AddNestedItem(ele, $h) {
 
     for (var p in $h) {
         this[p] = $h[p];
-    }
+    };
 
     this.nest = this.nest || "";
-    this.nestedClass = this.nestedClass || "nested-item";
+    this.eggClass = this.eggClass || "nested-item";
     this.template = this.template || "";
+    this.callback = this.callback || function(egg) {};
 
     this.element.addEventListener("click", this.add, false);
 
-}
+};
 
 AddNestedItem.prototype.add = function(evt){
     var ele = (evt.currentTarget) ? evt.currentTarget : evt.srcElement,
         me = ele.object,
-        new_item = me.createItem();
-    $(me.nest).append(new_item);
-}
+        new_egg = me.createItem(),
+        egg = $(me.nest).append(new_egg);
+    me.callback(egg[0])
+};
 
 AddNestedItem.prototype.createItem = function() {
     var me = this,
         new_id = me.countNest();
     return me.decodeHTML(me.template.replace(/NEW_RECORD/g, new_id));
-}
+};
 
 AddNestedItem.prototype.countNest = function() {
     var me = this;
-    return me.nest.getElementsByClassName(me.nestedClass).length;
-}
+    return me.nest.getElementsByClassName(me.eggClass).length;
+};
 
 AddNestedItem.prototype.decodeHTML = function(s) {
     var s = s || this.template,
         g = document.createElement('span');
     g.innerHTML = s;
     return g.firstChild.nodeValue;
-}
+};
